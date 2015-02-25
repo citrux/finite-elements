@@ -2,4 +2,4 @@
 
 Результат для уравнения теплопроводности:
 
-[Imgur](http://i.imgur.com/uk3minx.png)
+![Imgur](http://i.imgur.com/uk3minx.png)
