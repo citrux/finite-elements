@@ -1,0 +1,97 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[sumlimits, intlimits]{amsmath}
+\begin{document}
+	\section{Метод конечных элементов. Уравнение теплопроводности}
+	Рассмотрим простейшую задачу теплопроводности:
+	\[
+		\frac{\partial u}{\partial t} = \frac{\partial^2 u}{\partial x^2},
+		\quad x \in [0, 1],
+	\]
+	\begin{align*}
+		& u(0, t) = u(1, t) = 0,\\
+		& u(x, 0) = \sin \pi x.
+	\end{align*}
+
+	Она имеет точное решение:
+	\[
+		u(x, t) = e^{-\pi^2 t}\sin\pi x.
+	\]
+
+	Решим её численно с помощью метода конечных элементов в его проекционной
+	формулировке. Для начала немного теории:
+	\begin{enumerate}
+		\item разложим искомую функцию по некоторому конечному функциональному
+			  базису \( \{\psi_k\} \), разделив временную и пространственную
+			  координаты:
+			  \[ u(x, t) \approx \sum_{k=0}^n c_k(t)\psi_k(x); \]
+		\item подставим это представление в уравнение и определим невязку:
+			  \[
+			  	R = \left(\frac{\partial}{\partial t} -
+			  		\frac{\partial^2}{\partial x^2}\right)
+			  		\sum_{k=0}^n c_k(t)\psi_k(x) =
+			  		\sum_{k=0}^n
+			  		\left(c_k(t)'\psi_k(x) - c_k(t)\psi_k(x)''\right);
+			  \]
+		\item минимизация невязки, а вместе с ней и наилучшее приближение
+			  решения, достигается при ортогональности невязки базису:
+			  \[
+			  	\int_0^1 R\cdot\psi_m(x) dx = 0,\quad m = \overline{0, n};
+			  \]
+	\end{enumerate}
+
+	Отсюда получаем систему дифференциальных уравнений:
+	\[
+		a_{mk}c_k(t)' = b_{mk}c_k(t),
+	\]
+	где
+	\[
+		a_{mk} = \int_0^1 \psi_m(x) \psi_k(x) \,dx,\quad
+		b_{mk} = \int_0^1 \psi_m(x) \psi_k''(x) \,dx,
+	\]
+	которые зависят уже только от выбранного базиса.
+
+	\section{Выбор базиса}
+	\subsection{B-сплайны}
+		Разобьём \( [0,1] \) на \( n \) равных частей и рассмотрим в качестве
+		базисных функций \( B_1 \)-сплайны:
+		\begin{align*}
+			\psi_0 & = \begin{cases}
+				\cfrac{x-x1}{x_0-x_1},\quad \text{если } x\in[x_0, x_1),\\
+				0,\quad \text{иначе},
+			\end{cases}\\
+			\psi_k & = \begin{cases}
+				\cfrac{x-x_{k-1}}{x_k-x_{k-1}},\quad \text{если } x\in[x_{k-1}, x_k),\\
+				\cfrac{x-x_{k+1}}{x_k-x_{k+1}},\quad \text{если } x\in[x_k, x_{k+1}),\\
+				0,\quad \text{иначе},
+			\end{cases}\\
+			\psi_n & = \begin{cases}
+				\cfrac{x-x_{n-1}}{x_n-x_{n-1}},\quad \text{если } x\in[x_{n-1}, x_n),\\
+				0,\quad \text{иначе}.
+			\end{cases}
+		\end{align*}
+
+		Матричные элементы имеют вид:
+		\[
+			a_{mk} = \begin{cases}
+				h/3, \text{ если } m=k=0, m=k=n,\\
+				2h/3, \text{ если } m=k,\\
+				h/6, \text{ если } m=k \pm 1,\\
+				0,\quad \text{иначе},
+			\end{cases},
+			\quad
+			b_{mk} = \begin{cases}
+				0, \text{ если } m=k=0, m=k=n,\\
+				-2/h, \text{ если } m=k,\\
+				1/h, \text{ если } m=k \pm 1,\\
+				0,\quad \text{иначе},
+			\end{cases}
+		\]
+
+		Так как у этих сплайнов проблемы со второй производной, то для
+		вычисления \( b_{mk} \) использовалось интегрирование по частям.
+
+		Таким образом, матрица \( a_{mk} \) -- трёхдиагональная, а для
+		нахождения \( A^{-1}B \) можно воспользоваться методом прогонки.
+\end{document}
